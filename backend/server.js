@@ -5,6 +5,9 @@ import userRoute from './routes/user.js';
 import todoRoute from './routes/todo.js';
 import connectDB from './config/connectDB.js';
 import errorHandler from './middlewares/errorHandler.js';
+import cors from 'cors';
+
+
 
 const __dirname = path.resolve();
 dotenv.config({ path: __dirname + '/backend/config/config.env'});
@@ -13,6 +16,8 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 app.use('/api/user', userRoute);
