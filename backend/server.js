@@ -7,16 +7,16 @@ import connectDB from './config/connectDB.js';
 import errorHandler from './middlewares/errorHandler.js';
 
 const __dirname = path.resolve();
-dotenv.config({ path: __dirname + '/config/config.env'});
+dotenv.config({ path: __dirname + '/backend/config/config.env'});
 
-const app = express();
 const PORT = process.env.PORT || 5000;
-
 connectDB();
 
+const app = express();
+
 app.use(express.json());
-app.use('api/user', userRoute);
-app.use('api/todo', todoRoute);
+app.use('/api/user', userRoute);
+app.use('/api/todo', todoRoute);
 
 app.get('/', (req,res) => {
     res.send('Home Page');

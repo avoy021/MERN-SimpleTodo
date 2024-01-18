@@ -4,28 +4,31 @@ import User from '../models/userModel.js';
 import asyncHandler from 'express-async-handler';
 
 const protectRoute = asyncHandler(async (req,res,next) => {
-    try {
+    let token;
+    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
         const headers = req.headers.authorization;
-        const token = headers.split(' ')[1];
+        token = headers.split(' ')[1];
         if(token) {
-            const {id} = jwt.verify(token,process.env.JWT_SECRET);
-            const user = await User.findById(id);
-            if(user) {
-                // console.log(user)
-                req.user = {
-                    id,
-                    username: user["username"],
+            try {
+                const {id} = jwt.verify(token,process.env.JWT_SECRET);
+                const user = await User.findById(id);
+                if(user) {
+                    // console.log(user)
+                    req.user = {
+                        id,
+                        username: user["username"],
+                    }
+                    next();
                 }
-                next();
-            }
-            else {
-                res.status(401);
+            } catch (error) {
+                res.status(403);
                 throw new Error('User doesnt exist with this token');
             }
-        }
-    } catch (error) {
-        res.status(500);
-        throw new Error('Server error');
+    }}
+        
+    if(!token) {
+        res.status(400);
+        throw new Error('Token is missing');
     }
 })
 
