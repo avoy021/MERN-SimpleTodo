@@ -8,9 +8,13 @@ export const userLogin = async(userData) => {
         if(response.data) {
             localStorage.setItem('user',JSON.stringify(response.data));
         }
-        return JSON.parse(response.data);
+        return response.data;
     } catch (error) {
         return error.message;
     }
 }
+
+export const userLogout = async () => {
+    localStorage.removeItem('user');
+} 
 

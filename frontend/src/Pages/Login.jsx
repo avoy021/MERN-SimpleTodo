@@ -11,12 +11,9 @@ function Login()  {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { user,isLoading } = useSelector((state) => state.auth);
-    // const user = useSelector(state => state.user)
-    // const isLoading = useSelector(state => state.isLoading)
 
     useEffect(() => {
         if(user) {
-            // console.log("user ",user)
             dispatch(reset());
             navigate('/');
         }

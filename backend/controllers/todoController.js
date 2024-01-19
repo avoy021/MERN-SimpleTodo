@@ -7,7 +7,7 @@ export const getTodos = asyncHandler(async (req,res) => {
     const {userId,username} = req.user;
     const userTodos = await Todo.find({username});
     if(userTodos) {
-        res.status(200).json(userTodos[0]['todos'])
+        res.status(200).json(userTodos.length>0 ? userTodos[0]['todos']: userTodos)
     }
     else{
         res.status(500);
@@ -27,12 +27,15 @@ export const addTodo = asyncHandler(async (req,res) => {
     const userTodos = await Todo.findOne({username});
     let newTodo = {
         id: uuidv4(),
-        content
+        content: content.toUpperCase() 
     };
     if(userTodos) {
         userTodos["todos"].push(newTodo);
         const todoSaved = await userTodos.save();
-        return res.status(201).json(newTodo);
+        if(todoSaved){
+            // console.log('server created',todoSaved)
+            return res.status(201).json(newTodo);
+        }
     }
     else {
         let data = {
