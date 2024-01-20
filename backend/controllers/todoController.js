@@ -66,7 +66,7 @@ export const updateTodo = asyncHandler(async (req,res) => {
         indexOfTodo = userTodos['todos'].findIndex(todo => todo.id === todoId);
         userTodos['todos'][indexOfTodo] = {
             id: todoId,
-            content
+            content: content.toUpperCase()
         }
         // method2
         // userTodos['todos'] = userTodos['todos'].map((todo,index) => {

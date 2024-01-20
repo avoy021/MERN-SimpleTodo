@@ -5,8 +5,9 @@ import { reset,createTodo, fetchTodos, removeTodo, updateTodo } from "../feature
 
 const Dashboard = () => {
     const [text,setText] = useState("");
-    const [updatedText,setUpdatedText] = useState("");
-
+    const [editableTodos,setEditableTodos] = useState({});
+    const [isEditable,setIsEditable] = useState({});
+    
     const { user } = useSelector(state => state.auth);
     const { todos,isLoading } = useSelector(state => state.userTodo);
     const navigate = useNavigate();
@@ -21,10 +22,10 @@ const Dashboard = () => {
         if(!user) {
             navigate('/register');
         }
-        console.log("useEffect",todos)
         if(todos){
             dispatch(reset());
         }
+        // dispatch(fetchTodos());
         
     },[user,todos,isLoading])
 
@@ -33,17 +34,21 @@ const Dashboard = () => {
         setText("");
     }
 
-    const handleDeleteTodo = (e) => {
-        console.log(typeof e.target.id,e.target.id);
-        dispatch(removeTodo(e.target.id));
+    const handleDeleteTodo = (todoId) => {
+        dispatch(removeTodo(todoId));
     }
-    const handleUpdateTodo = (e) => {
-        const args = {todoId:e.target.id,content:updatedText}
+    const handleUpdateTodo = (todoId) => {
+        const args = { todoId, content: editableTodos[todoId] };
         dispatch(updateTodo(args));
+        setEditableTodos(prevState => ({ ...prevState, [todoId]: "" }));
     }
-    const handleOnFocus = (e) => {
-        e.target.readOnly = false;
-        setUpdatedText(e.target.defaultValue);
+    const handleOnFocus = (todoId,content) => {
+        setIsEditable(prevState => ({ ...prevState, [todoId]: true }));
+        setEditableTodos(prevState => ({ ...prevState, [todoId]: content }));
+    }
+    const handleInputChange = (e, todoId) => {
+        const { value } = e.target;
+        setEditableTodos(prevState => ({ ...prevState, [todoId]: value }));
     }
 
     return (
@@ -67,22 +72,23 @@ const Dashboard = () => {
                                     <li key={todo.id} className="w-fit list-none px-5 py-2 bg-gray-900 rounded m-3">
                                         <input type="text" name="content" id="content" 
                                             className="inline-block font-bold text-white mr-4 px-4 py-2 bg-gray-900 border-solid border-green-400 border-2 rounded"
-                                            defaultValue={todo.content}
-                                            readOnly={true}
-                                            onFocus={handleOnFocus}
-                                            onChange={(e) => setUpdatedText(e.target.value)}
+                                            value={isEditable[todo.id]? editableTodos[todo.id] : todo.content}
+                                            readOnly={!isEditable[todo.id]}
+                                            onFocus={() => handleOnFocus(todo.id,todo.content)}
+                                            onChange={(e) => handleInputChange(e, todo.id)}
                                             onBlur={(e) => {
-                                                e.target.value = todo.content;
+                                                setEditableTodos(prevState => ({ ...prevState, [todo.id]: e.target.value }));
+                                                setIsEditable(prevState => ({ ...prevState, [todo.id]: false }));
                                             }}
                                         />
                                         <button 
                                         className="ml-4 py-1 px-2 bg-green-600 rounded text-center text-white" 
-                                        onClick={handleUpdateTodo} id={todo.id}>
+                                        onClick={() => handleUpdateTodo(todo.id)}>
                                             Update
                                         </button>
                                         <button 
                                         className="ml-4 py-1 px-3 bg-green-600 rounded font-bold text-center text-white" 
-                                        onClick={handleDeleteTodo} id={todo.id} >
+                                        onClick={() => handleDeleteTodo(todo.id)} id={`delete-${todo.id}`} >
                                             Mark as done
                                         </button>
                                     </li>
