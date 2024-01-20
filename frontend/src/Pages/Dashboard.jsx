@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
-import { reset,createTodo, fetchTodos, removeTodo } from "../features/todos/todoSlice";
+import { reset,createTodo, fetchTodos, removeTodo, updateTodo } from "../features/todos/todoSlice";
 
 const Dashboard = () => {
     const [text,setText] = useState("");
+    const [updatedText,setUpdatedText] = useState("");
+
     const { user } = useSelector(state => state.auth);
-    const { todos,isLoading } = useSelector(state => state.userTodo)
+    const { todos,isLoading } = useSelector(state => state.userTodo);
     const navigate = useNavigate();
     const dispatch  = useDispatch();
 
@@ -19,9 +21,9 @@ const Dashboard = () => {
         if(!user) {
             navigate('/register');
         }
+        console.log("useEffect",todos)
         if(todos){
             dispatch(reset());
-            // console.log('Todos in dashboard',todos);
         }
         
     },[user,todos,isLoading])
@@ -35,8 +37,13 @@ const Dashboard = () => {
         console.log(typeof e.target.id,e.target.id);
         dispatch(removeTodo(e.target.id));
     }
-    const handleUpdateTodo = () => {
-        console.log('Update Todo')
+    const handleUpdateTodo = (e) => {
+        const args = {todoId:e.target.id,content:updatedText}
+        dispatch(updateTodo(args));
+    }
+    const handleOnFocus = (e) => {
+        e.target.readOnly = false;
+        setUpdatedText(e.target.defaultValue);
     }
 
     return (
@@ -53,21 +60,30 @@ const Dashboard = () => {
             </div>
             <div className="">
                 {
-                    (user && todos.length>0) ? (
+                    (todos.length>0) ? (
                         todos.map(todo => {
                             return (
                                 <>
                                     <li key={todo.id} className="w-fit list-none px-5 py-2 bg-gray-900 rounded m-3">
-                                        <div className="inline-block font-bold text-white mr-4">{todo.content}</div>
+                                        <input type="text" name="content" id="content" 
+                                            className="inline-block font-bold text-white mr-4 px-4 py-2 bg-gray-900 border-solid border-green-400 border-2 rounded"
+                                            defaultValue={todo.content}
+                                            readOnly={true}
+                                            onFocus={handleOnFocus}
+                                            onChange={(e) => setUpdatedText(e.target.value)}
+                                            onBlur={(e) => {
+                                                e.target.value = todo.content;
+                                            }}
+                                        />
                                         <button 
-                                        className="ml-4 py-1 px-1 bg-green-500 rounded text-center text-white" 
-                                        onClick={handleUpdateTodo} >
+                                        className="ml-4 py-1 px-2 bg-green-600 rounded text-center text-white" 
+                                        onClick={handleUpdateTodo} id={todo.id}>
                                             Update
                                         </button>
                                         <button 
-                                        className="ml-4 py-1 px-3 bg-green-500 rounded font-bold text-center text-white" 
+                                        className="ml-4 py-1 px-3 bg-green-600 rounded font-bold text-center text-white" 
                                         onClick={handleDeleteTodo} id={todo.id} >
-                                            Done
+                                            Mark as done
                                         </button>
                                     </li>
                                 </>

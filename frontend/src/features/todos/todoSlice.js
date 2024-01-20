@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
-import { addTodo, deleteTodo, getTodos } from "./todoService";
+import { addTodo, deleteTodo, getTodos, update } from "./todoService";
 
 const initialState = {
     todos: [],
@@ -31,10 +31,21 @@ export const createTodo = createAsyncThunk('todos/createTodo', async(content,thu
     }
 })
 
+export const updateTodo = createAsyncThunk('todos/updateTodo', async({todoId,content},thunkAPI) => {
+    try {
+        const user = thunkAPI.getState().auth.user;
+        // console.log("user",user);
+        const response = await update(user,todoId,content);
+        return response;
+    } catch (err) {
+        console.log(err.message)
+        return err.message;
+    }
+})
 export const removeTodo = createAsyncThunk('todos/removeTodo', async(todoId,thunkAPI) => {
     try {
         const user = thunkAPI.getState().auth.user;
-        console.log("user",user);
+        // console.log("user",user);
         const response = await deleteTodo(user,todoId);
         return response;
     } catch (err) {
@@ -92,6 +103,24 @@ export const todoSlice = createSlice({
             state.todos = state.todos.filter(todo => todo.id !== action.payload);
         })
         .addCase(removeTodo.rejected, (state,action) => {
+            state.isLoading = false;
+            state.message = action.payload;
+        })
+        .addCase(updateTodo.pending, (state,action) => {
+            state.isLoading = false;
+            state.message = "";
+        })
+        .addCase(updateTodo.fulfilled, (state,action) => {
+            state.isLoading = false;
+            state.message = "";
+            state.todos = state.todos.map(todo => {
+                if(todo.id === action.payload.id){
+                    return action.payload;
+                }
+                return todo;
+            });
+        })
+        .addCase(updateTodo.rejected, (state,action) => {
             state.isLoading = false;
             state.message = action.payload;
         })

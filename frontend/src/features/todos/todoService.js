@@ -32,6 +32,20 @@ export const addTodo = async(userData,content) => {
     }
 }
 
+export const update = async(userData,todoId,content) => {
+    try {
+        const response = await axios.put(API_URL,{todoId,content },{
+            headers: {
+                Authorization : `Bearer ${userData.token}`
+            } 
+        }
+        )
+        console.log("updated todo",response.data)
+        return response.data;
+    } catch (err) {
+        return err.message; 
+    }
+}
 export const deleteTodo = async(userData,todoId) => {
     try {
         const response = await axios.delete(API_URL,{
@@ -45,7 +59,6 @@ export const deleteTodo = async(userData,todoId) => {
         )
         return response.data;
     } catch (err) {
-        console.log('hereee',err.message)
         return err.message; 
     }
 }
