@@ -8,15 +8,13 @@ const initialState = {
     message: ""
 }
 
-export const fetchTodos = createAsyncThunk('todos/fetchTodos', async(thunkAPI) => {
+export const fetchTodos = createAsyncThunk('todos/fetchTodos', async(_,thunkAPI) => {
     try {
-        // const user = thunkAPI.getState().auth.user;
-        const user = JSON.parse(localStorage.getItem('user'));
+        const user = thunkAPI.getState().auth.user;
         const response = await getTodos(user);
         return response;
     } catch (err) {
-        // console.log('Error fetch',err.message)
-        return err.message
+        return thunkAPI.rejectWithValue(err.message);
     }
 })
 
@@ -26,31 +24,26 @@ export const createTodo = createAsyncThunk('todos/createTodo', async(content,thu
         const response = await addTodo(user,content);
         return response;
     } catch (err) {
-        // console.log('Error create',err.message)
-        return err.message;
+        return thunkAPI.rejectWithValue(err.message);
     }
 })
 
 export const updateTodo = createAsyncThunk('todos/updateTodo', async({todoId,content},thunkAPI) => {
     try {
         const user = thunkAPI.getState().auth.user;
-        // console.log("user",user);
         const response = await update(user,todoId,content);
         return response;
     } catch (err) {
-        console.log(err.message)
-        return err.message;
+        return thunkAPI.rejectWithValue(err.message);
     }
 })
 export const removeTodo = createAsyncThunk('todos/removeTodo', async(todoId,thunkAPI) => {
     try {
         const user = thunkAPI.getState().auth.user;
-        // console.log("user",user);
         const response = await deleteTodo(user,todoId);
         return response;
     } catch (err) {
-        console.log(err.message)
-        return err.message;
+        return thunkAPI.rejectWithValue(err.message);
     }
 })
 
@@ -74,6 +67,7 @@ export const todoSlice = createSlice({
             state.isLoading = false;
             state.message = "";
             state.todos = action.payload;
+            console.log("fetched todos when no user 1",action.payload)
         })
         .addCase(fetchTodos.rejected, (state,action) => {
             state.isLoading = false;
