@@ -67,7 +67,6 @@ export const todoSlice = createSlice({
             state.isLoading = false;
             state.message = "";
             state.todos = action.payload;
-            console.log("fetched todos when no user 1",action.payload)
         })
         .addCase(fetchTodos.rejected, (state,action) => {
             state.isLoading = false;

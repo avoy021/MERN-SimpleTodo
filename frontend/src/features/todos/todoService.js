@@ -6,14 +6,12 @@ export const getTodos = async(userData) => {
     const response = await axios.get(API_URL,{
         headers: {
             Authorization : `Bearer ${userData.token}`
-        }
+        },
     })
-    if(response.data){
-
-        return response.data;
-    }
+    return response.data;
 }
 
+  
 export const addTodo = async(userData,content) => {
     const response = await axios.post(API_URL,{content},{
         headers: {

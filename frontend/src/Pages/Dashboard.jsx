@@ -19,23 +19,34 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (user) {
-        console.log("user on fetching",user)
-        dispatch(fetchTodos());
+ 
 
+  useEffect(() => {
+    let isCancelled = false;
+    if (user) {
+      if(!isCancelled){
+        dispatch(fetchTodos());
+        // console.log('Fetch post has been executed');
+      }
     }
-  }, [user]);
+
+    return () => {
+      // console.log('Cleanup says fetch request cancelled');
+      isCancelled = true;
+    }
+  }, []);
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
-    if (todos) {
+    return () => {
       dispatch(reset());
     }
-    // dispatch(fetchTodos());
   }, [user, todos, isLoading]);
+  
+
+
 
   const handleAddTodo = () => {
     dispatch(createTodo(text));
@@ -100,7 +111,7 @@ const Dashboard = () => {
                     name="content"
                     id={`input-${todo.id}`}
                     key={`input-${todo.id}`}
-                    className="inline-block font-bold text-white mr-4 px-4 py-2 bg-gray-900 border-solid border-green-400 border-2 rounded"
+                    className="inline-block font-bold text-white mr-4 px-4 py-2 bg-gray-900 border-solid border-green-400 border-2 rounded w-fit"
                     value={
                       isEditable[todo.id]
                         ? editableTodos[todo.id]
